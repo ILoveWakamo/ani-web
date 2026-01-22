@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>AniHome – Anime Search</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+
+  <!-- Styles & Scripts -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ config['VERSION'] }}">
+
+  <script src="{{ url_for('static', filename='page-behavior.js') }}?v={{ config['VERSION'] }}" defer></script>
+  <script src="{{ url_for('static', filename='script.js') }}?v={{ config['VERSION'] }}" defer></script>
+
+</head>
+
+<body>
+  <div class="navbar">
+    <a href="/" class="logo-link">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="AniHome Logo" class="logo" />
+      <span class="logo-text">AniHome</span>
+    </a>
+  </div>
+  <div class="search-container">
+    <h1>Anime Search</h1>
+    <form id="searchForm" method="POST" action="/search">
+      <input type="text" id="searchInput" name="title" autocomplete="off" placeholder="Search anime...">
+      <ul id="suggestions"></ul>
+      <button type="submit">Search</button>
+    </form>
+  </div>
+
+</body>
+
+</html>

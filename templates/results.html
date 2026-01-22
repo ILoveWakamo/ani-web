@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Search Results</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}?v={{ config['VERSION'] }}">
+
+<script src="{{ url_for('static', filename='page-behavior.js') }}?v={{ config['VERSION'] }}"
+        defer></script>
+
+</head>
+<body>
+<div class="navbar">
+  <a href="/" class="logo-link">
+    <img
+      src="{{ url_for('static', filename='logo.png') }}"
+      alt="AniHome Logo"
+      class="logo"
+    />
+    <span class="logo-text">AniHome</span>
+  </a>
+</div>
+
+<h1>Search Results</h1>
+
+<ul class="results-list">
+    {% for anime in results %}
+        <li>
+            <a href="{{ url_for('play', anime_id=anime.id) }}?episode=1&total={{ anime.episodes }}">
+                {{ anime.title }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+
+</body>
+</html>
+

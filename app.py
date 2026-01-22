@@ -1,0 +1,142 @@
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+import subprocess
+import re
+import time
+import requests
+import fetch_episode
+from allanime_search import search_anime
+
+app = Flask(__name__)
+app.config['VERSION'] = '1.0.4'
+debug_toggle = False
+
+# ------------------------------
+# HELPER FUNCTIONS
+# ------------------------------
+def debug(msg, var=None):
+    if debug_toggle == True:
+        if var is not None:
+            print(f"[DEBUG] {msg}: {var}", file=sys.stderr)
+        else:
+            print(f"[DEBUG] {msg}", file=sys.stderr)
+
+
+
+# ---------------------------
+# ANILIST AUTOCOMPLETE
+# ---------------------------
+ANILIST_API = "https://graphql.anilist.co"
+
+def search_anilist(query, limit=10):
+    graphql_query = """
+    query ($search: String, $perPage: Int) {
+      Page(perPage: $perPage) {
+        media(search: $search, type: ANIME) {
+          id
+          title { romaji }
+          episodes
+        }
+      }
+    }
+    """
+    variables = {"search": query, "perPage": limit}
+    try:
+        response = requests.post(
+            ANILIST_API,
+            json={"query": graphql_query, "variables": variables},
+            headers={"Content-Type": "application/json"}
+        )
+        data = response.json()
+        results = []
+        for media in data["data"]["Page"]["media"]:
+            results.append({
+                "title": media["title"]["romaji"],
+                "episodes": media.get("episodes") or 1
+            })
+        return results
+    except Exception as e:
+        debug("AniList search error:", e)
+        return []
+
+@app.route("/autocomplete")
+def autocomplete():
+    q = request.args.get("q", "").strip()
+    if not q:
+        return jsonify([])
+    return jsonify(search_anilist(q))
+
+# ---------------------------
+# MP4 FETCH HELPER
+# ---------------------------
+def get_mp4_link(anime_id, episode, retries=10, delay=2):
+    for attempt in range(1, retries+1):
+        debug(f"\n--- Attempt {attempt} for episode {episode} ---")
+        output = fetch_episode.get_episode_url(anime_id, episode)
+        for entry in output:
+            match = re.search(r"Mp4 >\s*(https?://\S+)|https?://\S+?\.mp4\b", entry)
+            if match:
+                mp4_link = match.group(1) or match.group(0)
+                debug(f"MP4 link found: {mp4_link}")
+                return mp4_link
+            debug(f"MP4 link not found, retrying in {delay}s...")
+            time.sleep(delay)
+    debug("Failed to fetch MP4 link after all retries.")
+    return None
+
+# ---------------------------
+# ROUTES
+# ---------------------------
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/search", methods=["POST"])
+def search():
+    title = request.form.get("title")
+    if not title:
+        return redirect(url_for("home"))
+
+    try:
+        lines = search_anime(title, debug=debug_toggle)
+        results = []
+        for line in lines:
+            if line.strip():
+                parts = line.split("\t")
+                anime_id = parts[0]
+                title_episodes = parts[1]
+                if "(" in title_episodes:
+                    name = title_episodes.split("(")[0].strip()
+                    episodes_str = title_episodes.split("(")[-1].replace("episodes)", "").strip()
+                    episodes = int(episodes_str)
+                else:
+                    name = title_episodes.strip()
+                    episodes = 1
+                results.append({"id": anime_id, "title": name, "episodes": episodes})
+        return render_template("results.html", results=results)
+    except Exception as e:
+        return f"Error: {e}"
+
+# Player route (episode via query param)
+@app.route("/play/<anime_id>")
+def play(anime_id):
+    episode = request.args.get("episode", default=1, type=int)
+    total_episodes = request.args.get("total", default=episode, type=int)
+
+    mp4_link = get_mp4_link(anime_id, episode)
+    if not mp4_link:
+        return f"Failed to fetch MP4 link for episode {episode}.", 404
+
+    return render_template(
+        "player.html",
+        mp4_link=mp4_link,
+        anime_id=anime_id,
+        episode=episode,
+        total_episodes=total_episodes
+    )
+
+# ---------------------------
+# ENTRY POINT
+# ---------------------------
+if __name__ == "__main__":
+    app.run(debug=False, host="0.0.0.0")
+

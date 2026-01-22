@@ -1,0 +1,357 @@
+/* ========================
+   General body styles
+   ======================== */
+body {
+    background-color: #121212;
+    color: #fff;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0 20px;
+    height: 100%;
+    width: 100%;
+}
+
+h1 {
+    margin: 0;
+}
+
+/* ========================
+   Navbar
+   ======================== */
+.navbar {
+    position: fixed;
+    top: -60px;
+    left: 0;
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #1a1a1a;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    z-index: 100;
+    transition: top 0.3s ease;
+}
+
+.navbar.show {
+    top: 0;
+}
+
+.navbar a {
+    color: #1e90ff;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.navbar a:hover {
+    color: #63b3ed;
+}
+
+/* ========================
+   Logo in Navbar
+   ======================== */
+.logo-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo {
+    height: 28px;
+    width: auto;
+    display: block;
+}
+
+.logo-text {
+    color: #1e90ff;
+    font-weight: 600;
+    font-size: 1.1em;
+    letter-spacing: 0.5px;
+}
+
+.logo-link:hover .logo-text {
+    color: #63b3ed;
+}
+
+/* ========================
+   Home page search container
+   ======================== */
+.search-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+    text-align: center;
+}
+
+.search-container h1 {
+    font-size: 3em;
+    margin-bottom: 40px;
+}
+
+/* ========================
+   Search form & input
+   ======================== */
+form#searchForm {
+    position: relative;
+    width: 500px;
+    max-width: 90%;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 18px 20px;
+    font-size: 1.5em;
+    border-radius: 50px;
+    border: 2px solid #444;
+    background-color: #1e1e1e;
+    color: #fff;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    margin-bottom: 10px;
+}
+
+#searchInput:focus {
+    outline: none;
+    border-color: #1e90ff;
+    box-shadow: 0 0 8px #1e90ff;
+}
+
+/* ========================
+   Suggestions dropdown
+   ======================== */
+#suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 50px 50px 50px 50px;
+    max-height: 200px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    z-index: 1000;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#suggestions li {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: #fff;
+    transition: background 0.2s ease;
+}
+
+#suggestions li:hover {
+    background-color: #333;
+}
+
+/* ========================
+   Buttons (global)
+   ======================== */
+button, .controls a {
+    background-color: #1e1e1e;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid #444;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 1em;
+    margin: 5px 5px 5px 0;
+    display: inline-block;
+    transition: all 0.2s ease;
+}
+
+button:hover, .controls a:hover {
+    background-color: #1e90ff;
+    border-color: #1e90ff;
+}
+
+/* ========================
+   Custom Video Player
+   ======================== */
+.custom-player {
+    position: relative;
+    max-width: 800px;
+    margin: 20px auto 0;
+    background: black;
+    border-radius: 8px;
+    overflow: visible; /* allow buttons to be fully visible */
+}
+
+.custom-player video {
+    height: 100%;
+    width:100%;
+    display: block;
+    object-fit: contain;
+}
+
+/* ========================
+   Controls Bar
+   ======================== */
+.controls-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+    background: rgba(18, 18, 18, 0.9);
+    transition: opacity 0.3s ease;
+    opacity: 1; /* visible by default */
+    pointer-events: auto; /* ensures buttons still clickable */
+}
+
+.controls-bar[style*="opacity: 0"] {
+    pointer-events: none; /* prevent clicks when hidden */
+}
+
+/* Override global button styles inside player */
+.controls-bar button {
+    background: none;
+    border: none;
+    padding: 6px;
+    margin: 0;
+}
+
+/* Seek bar */
+#seekBar {
+    flex: 1;
+    cursor: pointer;
+    accent-color: #1e90ff;
+}
+
+.speed-control {
+    position: relative;
+}
+
+.speed-menu {
+    position: absolute;
+    bottom: 50px;
+    right: 0;
+    background: rgba(26, 26, 26, 0.95);
+    border: 1px solid #444;
+    border-radius: 10px;
+    padding: 6px 0;
+    display: none;
+    z-index: 1000;
+    min-width: 90px;
+}
+
+.speed-menu button {
+    width: 100%;
+    padding: 8px 14px;
+    background: none;
+    border: none;
+    color: #fff;
+    text-align: left;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.speed-menu button:hover,
+.speed-menu button.active {
+    background-color: #1e90ff;
+}
+
+
+/* ========================
+   SVG Pictogram Icons
+   ======================== */
+.icon {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: white;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.icon polygon,
+.icon rect {
+    fill: white;
+    stroke: none;
+}
+
+.controls-bar button:hover .icon polygon,
+.controls-bar button:hover .icon rect {
+    fill: #1e90ff;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ========================
+   Controls below video
+   ======================== */
+.controls {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.controls form select {
+    padding: 8px 12px;
+    border-radius: 50px;
+    border: 1px solid #444;
+    background-color: #1e1e1e;
+    color: #fff;
+    font-size: 1em;
+}
+
+.controls form select:focus {
+    outline: none;
+    border-color: #1e90ff;
+    box-shadow: 0 0 5px #1e90ff;
+}
+
+/* ========================
+   Results page list
+   ======================== */
+.results-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+.results-list li {
+    background-color: #1e1e1e;
+    border: 1px solid #444;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin: 10px 0;
+    transition: all 0.2s ease;
+}
+
+.results-list li:hover {
+    background-color: #2a2a2a;
+    border-color: #1e90ff;
+    transform: translateY(-2px);
+}
+
+.results-list li a {
+    color: #1e90ff;
+    text-decoration: none;
+    font-size: 1.2em;
+    font-weight: 500;
+    display: block;
+}
+
+.results-list li a:hover {
+    color: #63b3ed;
+}
+
+/* ========================
+   Misc
+   ======================== */
+body, html {
+    scroll-behavior: smooth;
+}
+
