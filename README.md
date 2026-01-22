@@ -1,4 +1,4 @@
-# AniHome
+# AniWeb
 
 This project is a simple Flask-based web application that allows users to search for anime, browse episodes, and stream them directly in the browser by fetching available MP4/HLS sources from Allanime.
 
