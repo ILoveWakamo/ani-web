@@ -34,8 +34,8 @@ This project is **not affiliated with ani-cli** and does not aim to be a replace
 Clone the repository:
 
 ```bash
-git clone https://github.com/name/repo.git
-cd repo
+git clone https://github.com/ILoveWakamo/ani-web.git
+cd ani-web
 ```
 
 (Optional but recommended) Create a virtual environment:
