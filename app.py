@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 import subprocess
+from datetime import datetime
 import re
 import time
 import requests
 import fetch_episode
-from allanime_search import search_anime
+from allanime_search import search_anime, fetch_season_anime
 
 app = Flask(__name__)
 app.config['VERSION'] = '1.0.4'
@@ -84,6 +85,28 @@ def get_mp4_link(anime_id, episode, retries=10, delay=2):
     return None
 
 # ---------------------------
+# ANIME SEASON HELPER
+# ---------------------------
+
+def current_anime_season() -> tuple[str, int]:
+    now = datetime.now()
+    month = now.month
+    year = now.year
+
+    if month in [1, 2, 3]:
+        season = "Winter"
+    elif month in [4, 5, 6]:
+        season = "Spring"
+    elif month in [7, 8, 9]:
+        season = "Summer"
+    else:  # 10,11,12
+        season = "Fall"
+
+    return season, year
+
+
+
+# ---------------------------
 # ROUTES
 # ---------------------------
 @app.route("/")
@@ -134,6 +157,17 @@ def play(anime_id):
         total_episodes=total_episodes
     )
 
+@app.route("/schedule")
+def schedule():
+    # Current season
+    season, year = current_anime_season()
+    seasonal = fetch_season_anime(season, year, "sub", False)
+
+    # Recent anime (as before)
+    recent_resp = requests.get("https://api3.janime.workers.dev/recent/1")
+    recent = recent_resp.json() if recent_resp.ok else []
+
+    return render_template("schedule.html", latest=recent, seasonal=seasonal)
 # ---------------------------
 # ENTRY POINT
 # ---------------------------

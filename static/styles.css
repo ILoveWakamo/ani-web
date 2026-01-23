@@ -28,6 +28,10 @@ h1 {
     box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     z-index: 100;
     transition: top 0.3s ease;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2em;
 }
 
 .navbar.show {
@@ -355,3 +359,65 @@ body, html {
     scroll-behavior: smooth;
 }
 
+/* ========================
+   Schedule
+   ======================== */
+
+.anime-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.anime-card {
+  text-align: center;
+  background-color: #1e1e1e; /* match navbar/body dark theme */
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0px 2px 10px rgba(0,0,0,0.6); /* subtle dark shadow */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.anime-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 6px 20px rgba(0,0,0,0.7);
+}
+
+.anime-card img {
+  width: 100%;
+  height: 240px; /* uniform card image height */
+  object-fit: cover;
+  display: block;
+}
+
+.anime-card p {
+  font-size: 14px;
+  color: #fff; /* white text to match theme */
+  margin: 8px 0;
+  padding: 0 6px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Make the entire card clickable if wrapped in <a> */
+.anime-card a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .anime-card img {
+    height: 180px;
+  }
+  .anime-card p {
+    font-size: 12px;
+  }
+}

@@ -13,6 +13,115 @@ def _debug(enabled: bool, msg):
         print(f"[DEBUG] {msg}", file=sys.stderr)
 
 
+import json
+import sys
+import requests
+from typing import List
+
+
+class AllAnimeSearchError(Exception):
+    """Base exception for AllAnime search errors."""
+
+
+def _debug(enabled: bool, msg):
+    if enabled:
+        print(f"[DEBUG] {msg}", file=sys.stderr)
+
+
+def fetch_season_anime(
+    season: str,
+    year: int,
+    mode: str = "sub",
+    debug: bool = False
+) -> List[str]:
+    """
+    Fetch all anime for a given season and year from AllAnime using the persisted query.
+
+    Args:
+        season (str): Season name (Winter, Spring, Summer, Fall)
+        year (int): Release year
+        mode (str): Translation type ('sub' or 'dub')
+        debug (bool): Enable debug logging
+
+    Returns:
+        List[str]: Formatted anime entries (id, name, availableEpisodes, thumbnail)
+    """
+
+    agent = "Mozilla/5.0"
+    api = "https://api.allanime.day/api"
+    referer = "https://allmanga.to"
+
+    headers = {
+        "User-Agent": agent,
+        "Referer": referer,
+        "Accept": "*/*",
+        "Origin": referer
+    }
+
+    results: List[str] = []
+    page = 1
+    limit = 26  # safe max
+
+    while True:
+        variables = {
+            "search": {
+                "season": season.capitalize(),  # "Winter", "Spring", etc.
+                "year": year,
+                "allowAdult": False,
+                "allowUnknown": False
+            },
+            "limit": limit,
+            "page": page,
+            "translationType": mode,
+            "countryOrigin": "JP"
+        }
+
+        # Persisted query required for season/year searches
+        params = {
+            "variables": json.dumps(variables, separators=(",", ":")),
+            "extensions": json.dumps({
+                "persistedQuery": {
+                    "version": 1,
+                    "sha256Hash": "06327bc10dd682e1ee7e07b6db9c16e9ad2fd56c1b769e47513128cd5c9fc77a"
+                }
+            })
+        }
+
+        _debug(debug, f"Fetching page {page} with variables: {variables}")
+
+        response = requests.get(api, headers=headers, params=params)
+        _debug(debug, f"HTTP status code: {response.status_code}")
+        response.raise_for_status()
+
+        data = response.json()
+        try:
+            edges = data["data"]["shows"]["edges"]
+        except (KeyError, TypeError):
+            raise AllAnimeSearchError("Unexpected API response structure")
+
+        if not edges:
+            _debug(debug, "No more results, stopping pagination")
+            break
+
+        for edge in edges:
+            anime = {
+                "id": edge.get("_id"),
+                "title": edge.get("name"),
+                "episodes": edge.get("availableEpisodes", {}).get("sub", 0),
+                "images": {
+                    "webp": {
+                        "image_url": edge.get("thumbnail") or ""
+                    }
+                }
+            }
+            results.append(anime)
+        page += 1
+
+    _debug(debug, f"Total results fetched: {len(results)}")
+    return results
+
+
+
 def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[str]:
     """
     Search AllAnime for shows matching a title.
@@ -63,6 +172,7 @@ def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[str
           _id
           name
           availableEpisodes
+          thumbnail
           __typename
         }
       }
@@ -125,13 +235,21 @@ def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[str
         _id = edge.get("_id", "")
         name = edge.get("name", "")
         sub_eps = edge.get("availableEpisodes", {}).get("sub", 0)
-
-        formatted = f"{_id}\t{name} ({sub_eps} episodes)"
+        thumbnail = edge.get("thumbnail", "")
+        
+        formatted = f"{_id}\t{name}\t{thumbnail}"
         results.append(formatted)
+        print(formatted)
+
+        if name == title:
+            return [formatted]
 
         _debug(debug, f"Formatted result: {formatted}")
 
+
     _debug(debug, "Search completed successfully")
+    
 
     return results
+
 
