@@ -1,4 +1,4 @@
-# AniHome
+# AniWeb
 
 This project is a simple Flask-based web application that allows users to search for anime, browse episodes, and stream them directly in the browser by fetching available MP4/HLS sources from Allanime.
 
@@ -34,8 +34,8 @@ This project is **not affiliated with ani-cli** and does not aim to be a replace
 Clone the repository:
 
 ```bash
-git clone https://github.com/name/repo.git
-cd repo
+git clone https://github.com/ILoveWakamo/ani-web.git
+cd ani-web
 ```
 
 (Optional but recommended) Create a virtual environment:
