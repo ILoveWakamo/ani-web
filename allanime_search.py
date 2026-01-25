@@ -4,22 +4,6 @@ import requests
 from typing import List
 import datetime
 
-
-class AllAnimeSearchError(Exception):
-    """Base exception for AllAnime search errors."""
-
-
-def _debug(enabled: bool, msg):
-    if enabled:
-        print(f"[DEBUG] {msg}", file=sys.stderr)
-
-
-import json
-import sys
-import requests
-from typing import List
-
-
 class AllAnimeSearchError(Exception):
     """Base exception for AllAnime search errors."""
 
@@ -240,7 +224,6 @@ def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[str
         
         formatted = f"{_id}\t{name}\t{thumbnail}"
         results.append(formatted)
-        print(formatted)
 
         if name == title:
             return [formatted]
@@ -340,7 +323,6 @@ def fetch_recent_anime(
             results.append(anime)
 
     _debug(debug, f"Total results fetched: {len(results)}")
-    print(results)
     return results
 
 
