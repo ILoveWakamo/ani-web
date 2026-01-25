@@ -2,6 +2,7 @@ import json
 import sys
 import requests
 from typing import List
+import datetime
 
 
 class AllAnimeSearchError(Exception):
@@ -250,6 +251,96 @@ def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[str
     _debug(debug, "Search completed successfully")
     
 
+    return results
+
+def fetch_recent_anime(
+    mode: str = "sub",
+    debug: bool = False
+) -> List[str]:
+    """
+    Fetch all anime with episodes aired in the last 2 days from AllAnime using the persisted query.
+
+    Args:
+        season (str): Season name (Winter, Spring, Summer, Fall)
+        year (int): Release year
+        mode (str): Translation type ('sub' or 'dub')
+        debug (bool): Enable debug logging
+
+    Returns:
+        List[str]: Formatted anime entries (id, name, availableEpisodes, thumbnail)
+    """
+
+    agent = "Mozilla/5.0"
+    api = "https://api.allanime.day/api"
+    referer = "https://allmanga.to"
+
+    headers = {
+        "User-Agent": agent,
+        "Referer": referer,
+        "Accept": "*/*",
+        "Origin": referer
+    }
+
+    results: List[str] = []
+    limit = 26  # safe max
+
+    variables = {
+        "search": {
+            "allowAdult": False,
+            "allowUnknown": False
+        },
+        "limit": limit,
+        "page": 1,
+        "translationType": mode,
+        "countryOrigin": "JP"
+    }
+
+    # Persisted query required for season/year searches
+    params = {
+        "variables": json.dumps(variables, separators=(",", ":")),
+        "extensions": json.dumps({
+            "persistedQuery": {
+                "version": 1,
+                "sha256Hash": "06327bc10dd682e1ee7e07b6db9c16e9ad2fd56c1b769e47513128cd5c9fc77a"
+            }
+        })
+    }
+
+    _debug(debug, f"Fetching recents with variables: {variables}")
+
+    response = requests.get(api, headers=headers, params=params)
+    _debug(debug, f"HTTP status code: {response.status_code}")
+    response.raise_for_status()
+
+    data = response.json()
+    try:
+        edges = data["data"]["shows"]["edges"]
+    except (KeyError, TypeError):
+        raise AllAnimeSearchError("Unexpected API response structure")
+
+    if not edges:
+        _debug(debug, "No more results, stopping pagination")
+        return []
+
+    for edge in edges:
+        base_date = edge.get("lastEpisodeDate", {}).get(mode, {})
+        air_date = datetime.date(base_date["year"], base_date["month"]+1, base_date["date"])
+        t_delta = datetime.date.today() - air_date
+        if t_delta.days < 2:
+            anime = {
+                "id": edge.get("_id"),
+                "title": edge.get("name"),
+                "episodes": edge.get("availableEpisodes", {}).get("sub", 0),
+                "images": {
+                    "webp": {
+                        "image_url": edge.get("thumbnail") or ""
+                    }
+                }
+            }
+            results.append(anime)
+
+    _debug(debug, f"Total results fetched: {len(results)}")
+    print(results)
     return results
 
 

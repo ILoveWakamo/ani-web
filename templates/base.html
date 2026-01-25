@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% block head %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %} {% endblock %}</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+
+  <!-- Styles & Scripts -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ config['VERSION'] }}">
+
+  <script src="{{ url_for('static', filename='page-behavior.js') }}?v={{ config['VERSION'] }}" defer></script>
+
+  {% endblock %}
+</head>
+
+<body>
+  <div class="navbar">
+    <a href="/" class="logo-link">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="AniHome Logo" class="logo" />
+      <span class="logo-text">AniHome</span>
+    </a>
+    <a href="/schedule" class="nav-link">Schedule</a>
+  </div>
+  {% block content %}
+
+  {% endblock %}
+</body>
+
+</html>

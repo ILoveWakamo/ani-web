@@ -1,37 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <title>AniHome – Schedule</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  <script src="{{ url_for('static', filename='page-behavior.js') }}?v={{ config['VERSION'] }}" defer></script>
+{% extends "base.html" %}
+{% block title %} AniWeb - Schedule {% endblock %}
+{% block head %} {{ super() }} {% endblock %}
+{% block content %}
 
-</head>
+  <div class="inner">
+    <h1>Recent Episodes</h1>
+    <div class="recent-episodes">
+      {% for anime in latest %}
+        <a class="anime-card" href="{{ url_for('play', anime_id=anime.id, episode=1, total=anime.episodes) }}">
+            <img src="{{ anime.images.webp.image_url }}" alt="{{ anime.title }} cover">
+            <p>{{ anime.title }}</p>
+            <p>{{ anime.episodes }} episodes</p>
+        </a>
+        {% else %}
+        <p>No recent anime found.</p>
+        {% endfor %}
 
-<body>
-
-  <div class="navbar">
-    <a href="/" class="logo-link">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="AniHome Logo" class="logo" />
-      <span class="logo-text">AniHome</span>
-    </a>
-    <a href="/schedule" class="nav-link">Schedule</a>
+    </div>
+    <h1>Seasonal Anime</h1>
+    <div class="anime-grid">
+        {% for anime in seasonal %}
+        <a class="anime-card" href="{{ url_for('play', anime_id=anime.id, episode=1, total=anime.episodes) }}">
+            <img src="{{ anime.images.webp.image_url }}" alt="{{ anime.title }} cover">
+            <p>{{ anime.title }}</p>
+            <p>{{ anime.episodes }} episodes</p>
+        </a>
+        {% else %}
+        <p>No seasonal anime found.</p>
+        {% endfor %}
+    </div>
   </div>
 
-  
-  <h1>Seasonal Anime</h1>
-  <div class="anime-grid">
-      {% for anime in seasonal %}
-      <a class="anime-card" href="{{ url_for('play', anime_id=anime.id, episode=1, total=anime.episodes) }}">
-          <img src="{{ anime.images.webp.image_url }}" alt="{{ anime.title }} cover">
-          <p>{{ anime.title }}</p>
-          <p>{{ anime.episodes }} episodes</p>
-      </a>
-      {% else %}
-      <p>No seasonal anime found.</p>
-      {% endfor %}
-  </div>
-</body>
-
-</html>
+{% endblock %}

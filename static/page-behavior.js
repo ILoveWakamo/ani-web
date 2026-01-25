@@ -1,7 +1,7 @@
 /* ========================
    Navbar show on mouse near top
    ======================== */
-document.addEventListener("mousemove", function (e) {
+document.addEventListener("mousemove", function(e) {
     const navbar = document.querySelector(".navbar");
     if (!navbar) return;
 
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     playPause.addEventListener("click", togglePlay);
     video.addEventListener("click", () => {
-    const controlsVisible = window.getComputedStyle(container.querySelector(".controls-bar")).opacity === "1";
+        const controlsVisible = window.getComputedStyle(container.querySelector(".controls-bar")).opacity === "1";
         if (controlsVisible) {
             togglePlay();
         }
@@ -57,14 +57,14 @@ document.addEventListener("DOMContentLoaded", () => {
     video.addEventListener("timeupdate", () => {
         if (!video.duration) return;
         seekBar.value = (video.currentTime / video.duration) * 100;
-        timestamp.innerHTML = parseInt((video.currentTime/60)%60).toLocaleString('en-US', {
+        timestamp.innerHTML = parseInt((video.currentTime / 60) % 60).toLocaleString('en-US', {
             minimumIntegerDigits: 2,
             useGrouping: false
         })
-         + ":" + parseInt(video.currentTime % 60).toLocaleString('en-US', {
-             minimumIntegerDigits: 2,
-             useGrouping: false
-         });
+            + ":" + parseInt(video.currentTime % 60).toLocaleString('en-US', {
+                minimumIntegerDigits: 2,
+                useGrouping: false
+            });
     });
 
     /* Seek */
@@ -74,10 +74,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.addEventListener("keydown", (e) => {
-        if(e.code === "ArrowRight"){
+        if (e.code === "ArrowRight") {
             video.currentTime = Math.min(video.currentTime + 10, video.duration);
-        } else if(e.code === "ArrowLeft"){
-            video.currentTime = Math.max(video.currentTime -10, 0);
+        } else if (e.code === "ArrowLeft") {
+            video.currentTime = Math.max(video.currentTime - 10, 0);
         }
     });
 
@@ -111,12 +111,12 @@ document.addEventListener("DOMContentLoaded", () => {
     function showControls() {
         container.querySelector(".controls-bar").style.opacity = "1";
     }
-    
+
     /* Render controls invisible*/
     function hideControls() {
         container.querySelector(".controls-bar").style.opacity = "0";
     }
-    
+
     /* Define timeout to hide controls*/
     function resetControlsTimer() {
         showControls();
@@ -157,14 +157,31 @@ document.addEventListener("DOMContentLoaded", () => {
             speedMenu.style.display = "none";
         });
     });
+});
 
 // Close menu when clicking elsewhere
 document.addEventListener("click", () => {
     speedMenu.style.display = "none";
 });
 
-    // Initialize
-    resetControlsTimer();
 
-});
+/* ========================
+Schedule page interactions
+======================== */
+
+function horizontal_scroll(event) {
+    event.preventDefault();
+    if (recent.scrollWidth > recent.clientWidth) {
+        event.preventDefault();
+        recent.scrollLeft += event.deltaY;
+    }
+    { passive: false }
+}
+
+const recent = document.querySelector('.recent-episodes');
+recent.onwheel = horizontal_scroll;
+
+// Initialize
+resetControlsTimer();
+
 
