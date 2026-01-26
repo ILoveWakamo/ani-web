@@ -181,6 +181,16 @@ function horizontal_scroll(event) {
 const recent = document.querySelector('.recent-episodes');
 recent.onwheel = horizontal_scroll;
 
+document.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const mode = btn.dataset.mode;
+        const url = new URL(window.location);
+
+        url.searchParams.set("mode", mode);
+        window.location = url;
+    });
+});
+
 // Initialize
 resetControlsTimer();
 

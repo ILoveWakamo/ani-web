@@ -159,15 +159,17 @@ def play(anime_id):
 
 @app.route("/schedule")
 def schedule():
+
+    mode = request.args.get("mode", "sub")
     # Current season
     season, year = current_anime_season()
-    seasonal = fetch_season_anime(season, year, "sub", debug_toggle)
+    seasonal = fetch_season_anime(season, year, mode, debug_toggle)
 
     # Recent anime
-    recent = fetch_recent_anime("sub", debug_toggle)
+    recent = fetch_recent_anime(mode, debug_toggle)
 
 
-    return render_template("schedule.html", latest=recent, seasonal=seasonal)
+    return render_template("schedule.html", latest=recent, seasonal=seasonal, mode=mode)
 # ---------------------------
 # ENTRY POINT
 # ---------------------------

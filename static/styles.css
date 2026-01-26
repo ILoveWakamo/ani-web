@@ -377,6 +377,31 @@ body, html {
     padding: 1rem;
 }
 
+.filters {
+  display: flex;
+  flex-direction:row-reverse;
+  gap: 2rem;
+}
+
+.mode-btn {
+  padding: 6px 14px;
+  border: 1px solid #aaa;
+  background: #1e90ff;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.mode-btn.active {
+  background: #63b3ed;
+  color: white;
+  border-color: #63b3ed;
+}
+
+.mode-btn:hover:not(.active) {
+  background: #e5e5e5;
+}
+
+
 .anime-grid {
   display: flex;
   flex-wrap: wrap;
