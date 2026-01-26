@@ -18,24 +18,16 @@ h1 {
    Navbar
    ======================== */
 .navbar {
-    position: fixed;
-    top: -60px;
     left: 0;
     width: 100%;
     padding: 10px 20px;
     background-color: #1a1a1a;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    z-index: 100;
-    transition: top 0.3s ease;
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 2em;
 }
 
-.navbar.show {
-    top: 0;
-}
 
 .navbar a {
     color: #1e90ff;

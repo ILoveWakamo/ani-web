@@ -1,18 +1,4 @@
 /* ========================
-   Navbar show on mouse near top
-   ======================== */
-document.addEventListener("mousemove", function(e) {
-    const navbar = document.querySelector(".navbar");
-    if (!navbar) return;
-
-    if (e.clientY <= 50) {
-        navbar.classList.add("show");
-    } else {
-        navbar.classList.remove("show");
-    }
-});
-
-/* ========================
    Custom Video Player Logic
    ======================== */
 document.addEventListener("DOMContentLoaded", () => {
