@@ -120,21 +120,7 @@ def search():
         return redirect(url_for("home"))
 
     try:
-        lines = search_anime(title, debug=debug_toggle)
-        results = []
-        for line in lines:
-            if line.strip():
-                parts = line.split("\t")
-                anime_id = parts[0]
-                title_episodes = parts[1]
-                if "(" in title_episodes:
-                    name = title_episodes.split("(")[0].strip()
-                    episodes_str = title_episodes.split("(")[-1].replace("episodes)", "").strip()
-                    episodes = int(episodes_str)
-                else:
-                    name = title_episodes.strip()
-                    episodes = 1
-                results.append({"id": anime_id, "title": name, "episodes": episodes})
+        results = search_anime(title, debug=debug_toggle)
         return render_template("results.html", results=results)
     except Exception as e:
         return f"Error: {e}"

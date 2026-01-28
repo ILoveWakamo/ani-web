@@ -400,7 +400,8 @@ body, html {
   padding-top: 1rem;
   width: 100%;
   box-sizing: border-box;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 1.9rem
 }
 
 
@@ -415,6 +416,7 @@ body, html {
   display: flex;
   flex-direction: column;
 }
+
 
 .anime-card:hover {
   transform: translateY(-4px);
@@ -434,8 +436,7 @@ body, html {
   margin: 8px 0;
   padding: 0 6px;
   text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+  overflow: auto;
 }
 
 a {
@@ -450,7 +451,7 @@ a {
 
 .recent-episodes {
   display: flex;
-  gap: 16px;
+  gap: 1.9rem;
   padding-top: 1rem;
   padding-bottom: 1rem; 
   overflow-x: auto;

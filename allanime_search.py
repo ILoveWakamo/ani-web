@@ -95,7 +95,7 @@ def fetch_season_anime(
                 "episodes": edge.get("availableEpisodes", {}).get("sub", 0),
                 "images": {
                     "webp": {
-                        "image_url": edge.get("thumbnail") or ""
+                        "image_url": edge.get("thumbnail") or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
                     }
                 }
             }
@@ -212,24 +212,38 @@ def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[str
     _debug(debug, f"Number of results returned: {len(edges)}")
 
     results: List[str] = []
+    for edge in edges:
+                anime = {
+                    "id": edge.get("_id", ""),
+                    "title": edge.get("name", ""),
+                    "episodes": edge.get("availableEpisodes", {}).get("sub", 0),
+                    "images": {
+                        "webp": {
+                            "image_url": edge.get("thumbnail") or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
+                        }
+                    }
+                }
+                
+                results.append(anime)
 
-    for i, edge in enumerate(edges, 1):
-        _debug(debug, f"Processing result #{i}")
-        _debug(debug, edge)
+    """
+        for i, edge in enumerate(edges, 1):
+            _debug(debug, f"Processing result #{i}")
+            _debug(debug, edge)
 
-        _id = edge.get("_id", "")
-        name = edge.get("name", "")
-        sub_eps = edge.get("availableEpisodes", {}).get("sub", 0)
-        thumbnail = edge.get("thumbnail", "")
-        
-        formatted = f"{_id}\t{name}\t{thumbnail}"
-        results.append(formatted)
+            _id = edge.get("_id", "")
+            name = edge.get("name", "")
+            sub_eps = edge.get("availableEpisodes", {}).get("sub", 0)
+            thumbnail = edge.get("thumbnail", "")
+            
+            formatted = f"{_id}\t{name}\t{thumbnail}\t{sub_eps}"
+            results.append(formatted)
 
-        if name == title:
-            return [formatted]
+            if name == title:
+                return [formatted]
 
-        _debug(debug, f"Formatted result: {formatted}")
-
+            _debug(debug, f"Formatted result: {formatted}")
+    """
 
     _debug(debug, "Search completed successfully")
     
@@ -316,7 +330,7 @@ def fetch_recent_anime(
                 "episodes": edge.get("availableEpisodes", {}).get("sub", 0),
                 "images": {
                     "webp": {
-                        "image_url": edge.get("thumbnail") or ""
+                            "image_url": edge.get("thumbnail") or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
                     }
                 }
             }

@@ -25,15 +25,17 @@
 
 <h1>Search Results</h1>
 
-<ul class="results-list">
+<div class="anime-grid">
     {% for anime in results %}
-        <li>
-            <a href="{{ url_for('play', anime_id=anime.id) }}?episode=1&total={{ anime.episodes }}">
-                {{ anime.title }}
-            </a>
-        </li>
+    <a class="anime-card" href="{{ url_for('play', anime_id=anime.id, episode=1, total=anime.episodes) }}">
+        <img src="{{ anime.images.webp.image_url }}" alt="{{ anime.title }} cover" onerror="this.onerror=null; this.src='https://www.eclosio.ong/wp-content/uploads/2018/08/default.png'">
+        <p>{{ anime.title }}</p>
+        <p>{{ anime.episodes }} episodes</p>
+    </a>
+    {% else %}
+    <p>No seasonal anime found.</p>
     {% endfor %}
-</ul>
+</div>
 
 </body>
 </html>
