@@ -9,7 +9,7 @@ from allanime_search import search_anime, fetch_season_anime, fetch_recent_anime
 
 app = Flask(__name__)
 app.config['VERSION'] = '1.0.4'
-debug_toggle = False
+debug_toggle = True
 
 # ------------------------------
 # HELPER FUNCTIONS
@@ -113,15 +113,16 @@ def current_anime_season() -> tuple[str, int]:
 def home():
     return render_template("index.html")
 
-@app.route("/search", methods=["POST"])
+@app.route("/search", methods=["GET", "POST"])
 def search():
-    title = request.form.get("title")
+    title = request.args.get("title") or request.form.get("title")
+    mode = request.args.get("mode", "sub")
     if not title:
         return redirect(url_for("home"))
 
     try:
-        results = search_anime(title, debug=debug_toggle)
-        return render_template("results.html", results=results)
+        results = search_anime(title, mode, debug=debug_toggle)
+        return render_template("results.html", results=results, mode=mode, title=title)
     except Exception as e:
         return f"Error: {e}"
 

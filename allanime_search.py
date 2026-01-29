@@ -216,7 +216,7 @@ def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[str
                 anime = {
                     "id": edge.get("_id", ""),
                     "title": edge.get("name", ""),
-                    "episodes": edge.get("availableEpisodes", {}).get("sub", 0),
+                    "episodes": edge.get("availableEpisodes", {}).get(mode, 0),
                     "images": {
                         "webp": {
                             "image_url": edge.get("thumbnail") or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"

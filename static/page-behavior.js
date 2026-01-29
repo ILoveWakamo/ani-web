@@ -143,12 +143,18 @@ document.addEventListener("DOMContentLoaded", () => {
             speedMenu.style.display = "none";
         });
     });
+
+    // Close menu when clicking elsewhere
+    document.addEventListener("click", () => {
+        speedMenu.style.display = "none";
+    });
+
+    // Initialize
+    resetControlsTimer();
+
 });
 
-// Close menu when clicking elsewhere
-document.addEventListener("click", () => {
-    speedMenu.style.display = "none";
-});
+
 
 
 /* ========================
@@ -165,19 +171,30 @@ function horizontal_scroll(event) {
 }
 
 const recent = document.querySelector('.recent-episodes');
-recent.onwheel = horizontal_scroll;
+if (recent) {
+    recent.onwheel = horizontal_scroll;
+}
+/* ========================
+Mode switch buttons (sub/dub)
+======================== */
 
-document.querySelectorAll(".mode-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-        const mode = btn.dataset.mode;
-        const url = new URL(window.location);
 
-        url.searchParams.set("mode", mode);
-        window.location = url;
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("content is loaded");
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const mode = btn.dataset.mode;
+            const url = new URL(window.location);
+            const title = btn.dataset.title
+
+            console.log("switching to " + mode);
+            if (title) {
+                url.searchParams.set("title", title);
+            }
+            url.searchParams.set("mode", mode);
+            window.location = url;
+        });
     });
 });
-
-// Initialize
-resetControlsTimer();
 
 
