@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 import subprocess
 from datetime import datetime
 import re
+import sys
 import time
 import requests
 import fetch_episode
@@ -69,10 +70,10 @@ def autocomplete():
 # ---------------------------
 # MP4 FETCH HELPER
 # ---------------------------
-def get_mp4_link(anime_id, episode, retries=10, delay=2):
+def get_mp4_link(anime_id, episode, retries=10, delay=2, mode="sub"):
     for attempt in range(1, retries+1):
         debug(f"\n--- Attempt {attempt} for episode {episode} ---")
-        output = fetch_episode.get_episode_url(anime_id, episode)
+        output = fetch_episode.get_episode_url(anime_id, episode, mode)
         for entry in output:
             match = re.search(r"Mp4 >\s*(https?://\S+)|https?://\S+?\.mp4\b", entry)
             if match:
@@ -131,8 +132,9 @@ def search():
 def play(anime_id):
     episode = request.args.get("episode", default=1, type=int)
     total_episodes = request.args.get("total", default=episode, type=int)
+    mode = request.args.get("mode", default="sub", type=str)
 
-    mp4_link = get_mp4_link(anime_id, episode)
+    mp4_link = get_mp4_link(anime_id, episode, mode=mode)
     if not mp4_link:
         return f"Failed to fetch MP4 link for episode {episode}.", 404
 

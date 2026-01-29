@@ -15,8 +15,7 @@ agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Fire
 allanime_refr = "https://allmanga.to"
 allanime_base = "allanime.day"
 allanime_api = f"https://api.{allanime_base}"
-mode = "sub"
-debug_toggle = False
+debug_toggle = True
 
 # ------------------------------
 # HELPER FUNCTIONS
@@ -162,7 +161,7 @@ def select_quality(links, quality="best"):
 # STEP 5: GET EPISODE URL
 # ------------------------------
 
-def get_episode_url(show_id, ep_no):
+def get_episode_url(show_id, ep_no, mode):
     gql = """
     query ($showId: String!, $translationType: VaildTranslationTypeEnumType!, $episodeString: String!) {
         episode(showId: $showId translationType: $translationType episodeString: $episodeString) {
