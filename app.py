@@ -10,7 +10,7 @@ from allanime_search import search_anime, fetch_season_anime, fetch_recent_anime
 
 app = Flask(__name__)
 app.config['VERSION'] = '1.0.4'
-debug_toggle = True
+debug_toggle = False
 
 # ------------------------------
 # HELPER FUNCTIONS
