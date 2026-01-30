@@ -136,29 +136,7 @@ def get_links(provider_name, provider_id):
 
 
 # ------------------------------
-# STEP 4: SELECT QUALITY
-# ------------------------------
-def select_quality(links, quality="best"):
-    debug("Links before quality selection", links)
-    if not links:
-        return None
-    if quality == "best":
-        result = links[0]
-    elif quality == "worst":
-        numeric = [l for l in links if re.match(r'^\d+', l)]
-        result = numeric[-1] if numeric else links[0]
-    else:
-        for l in links:
-            if l.startswith(quality):
-                result = l
-                break
-        else:
-            result = links[0]
-    debug("Selected link after quality filter", result)
-    return result
-
-# ------------------------------
-# STEP 5: GET EPISODE URL
+# STEP 4: GET EPISODE URL
 # ------------------------------
 
 def get_episode_url(show_id, ep_no, mode):
@@ -183,14 +161,18 @@ def get_episode_url(show_id, ep_no, mode):
 
     all_links = []
     for name, raw_id in providers:
-        if(name == "Yt-mp4"):
-            continue
         pid = decode_provider(raw_id)
         debug("Decoded provider URL", pid)
+        if(name == "Yt-mp4"):
+            all_links.append(pid)
+            continue
         links = get_links(name, pid)
         all_links.extend(links)
 
     all_links.sort(reverse=True)
     debug("All collected links", all_links)
     return all_links
+
+
+print(get_episode_url("7ukoqggR93e4JgX6W", 1, "dub"))
 

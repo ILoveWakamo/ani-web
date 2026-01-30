@@ -11,7 +11,7 @@
 <div class="custom-player" id="playerContainer">
 
     <video id="video" autoplay>
-        <source src="{{ mp4_link }}" type="video/mp4">
+        <source src="{{ url_for('video_proxy') }}?url={{ mp4_link }}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 

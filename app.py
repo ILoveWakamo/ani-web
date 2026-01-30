@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, Response
 import subprocess
 from datetime import datetime
 import re
@@ -9,7 +9,7 @@ import fetch_episode
 from allanime_search import search_anime, fetch_season_anime, fetch_recent_anime
 
 app = Flask(__name__)
-app.config['VERSION'] = '1.0.4'
+app.config['VERSION'] = '1.0.5'
 debug_toggle = False
 
 # ------------------------------
@@ -75,7 +75,7 @@ def get_mp4_link(anime_id, episode, retries=10, delay=2, mode="sub"):
         debug(f"\n--- Attempt {attempt} for episode {episode} ---")
         output = fetch_episode.get_episode_url(anime_id, episode, mode)
         for entry in output:
-            match = re.search(r"Mp4 >\s*(https?://\S+)|https?://\S+?\.mp4\b", entry)
+            match = re.search(r"Mp4 >\s*(https?://\S+)|https?://\S+?\.mp4\b|https?://tools\.fast4speed\.rsvp\S+", entry)
             if match:
                 mp4_link = match.group(1) or match.group(0)
                 debug(f"MP4 link found: {mp4_link}")
@@ -126,6 +126,21 @@ def search():
         return render_template("results.html", results=results, mode=mode, title=title)
     except Exception as e:
         return f"Error: {e}"
+
+@app.route("/video_proxy")
+def video_proxy():
+    url = request.args.get("url")
+    if not url:
+        return "Missing URL", 400
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+        "Referer": "https://allmanga.to"
+    }
+
+    resp = requests.get(url, headers=headers, stream=True)
+    return Response(resp.iter_content(chunk_size=8192), content_type=resp.headers.get("content-type"))
+
 
 # Player route (episode via query param)
 @app.route("/play/<anime_id>")
