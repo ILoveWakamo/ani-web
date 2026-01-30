@@ -136,14 +136,17 @@ def play(anime_id):
 
     mp4_link = get_mp4_link(anime_id, episode, mode=mode)
     if not mp4_link:
-        return f"Failed to fetch MP4 link for episode {episode}.", 404
-
+        mp4_link = None
+        error_message = f"No video available for episode {episode}."
+    else:
+        error_message = None
     return render_template(
         "player.html",
         mp4_link=mp4_link,
         anime_id=anime_id,
         episode=episode,
-        total_episodes=total_episodes
+        total_episodes=total_episodes,
+        error_message=error_message
     )
 
 @app.route("/schedule")
