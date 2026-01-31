@@ -6,7 +6,7 @@ import sys
 import time
 import requests
 import fetch_episode
-from allanime_search import search_anime, fetch_season_anime, fetch_recent_anime
+from allanime_search import search_anime, fetch_season_anime, fetch_recent_anime, search_by_id
 
 app = Flask(__name__)
 app.config['VERSION'] = '1.0.5'
@@ -177,6 +177,33 @@ def schedule():
 
 
     return render_template("schedule.html", latest=recent, seasonal=seasonal, mode=mode)
+
+@app.route("/description/<anime_id>")
+def description(anime_id):
+    # Mode can be optional, default to "sub"
+    mode = request.args.get("mode", "sub")
+
+    try:
+        # Ideally, you have cached search results, otherwise you can search all anime
+        anime_data = search_by_id(anime_id, debug=debug_toggle)  # empty query returns nothing? maybe another fetch function
+        if not anime_data:
+            # Fallback if not found
+            anime_data = {
+                "id": anime_id,
+                "title": "Unknown Anime",
+                "synopsis": "No description available.",
+                "episodes": 0,
+                "thumbnail_url": "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png",
+            }
+
+        # Make sure template variable matches
+        return render_template("description.html", anime=anime_data, mode=mode)
+
+    except Exception as e:
+        return f"Error fetching anime description: {e}", 500
+
+
+
 # ---------------------------
 # ENTRY POINT
 # ---------------------------

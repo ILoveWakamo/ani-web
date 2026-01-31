@@ -18,7 +18,7 @@ def fetch_season_anime(
     year: int,
     mode: str = "sub",
     debug: bool = False
-) -> List[str]:
+) -> List[dict]:
     """
     Fetch all anime for a given season and year from AllAnime using the persisted query.
 
@@ -97,7 +97,8 @@ def fetch_season_anime(
                     "webp": {
                         "image_url": edge.get("thumbnail") or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
                     }
-                }
+                },
+                "synopsis": edge.get("description") or "No description found."
             }
             results.append(anime)
         page += 1
@@ -107,7 +108,7 @@ def fetch_season_anime(
 
 
 
-def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[str]:
+def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[dict]:
     """
     Search AllAnime for shows matching a title.
 
@@ -221,29 +222,11 @@ def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[str
                         "webp": {
                             "image_url": edge.get("thumbnail") or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
                         }
-                    }
+                    },
+                    "synopsis": edge.get("description") or "No description found."
                 }
                 
                 results.append(anime)
-
-    """
-        for i, edge in enumerate(edges, 1):
-            _debug(debug, f"Processing result #{i}")
-            _debug(debug, edge)
-
-            _id = edge.get("_id", "")
-            name = edge.get("name", "")
-            sub_eps = edge.get("availableEpisodes", {}).get("sub", 0)
-            thumbnail = edge.get("thumbnail", "")
-            
-            formatted = f"{_id}\t{name}\t{thumbnail}\t{sub_eps}"
-            results.append(formatted)
-
-            if name == title:
-                return [formatted]
-
-            _debug(debug, f"Formatted result: {formatted}")
-    """
 
     _debug(debug, "Search completed successfully")
     
@@ -253,13 +236,11 @@ def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[str
 def fetch_recent_anime(
     mode: str = "sub",
     debug: bool = False
-) -> List[str]:
+) -> List[dict]:
     """
     Fetch all anime with episodes aired in the last 2 days from AllAnime using the persisted query.
 
     Args:
-        season (str): Season name (Winter, Spring, Summer, Fall)
-        year (int): Release year
         mode (str): Translation type ('sub' or 'dub')
         debug (bool): Enable debug logging
 
@@ -332,11 +313,56 @@ def fetch_recent_anime(
                     "webp": {
                             "image_url": edge.get("thumbnail") or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
                     }
-                }
+                },
+                "synopsis": edge.get("description") or "No description found."
             }
             results.append(anime)
 
     _debug(debug, f"Total results fetched: {len(results)}")
     return results
+
+def search_by_id(anime_id: str, debug: bool = False) -> dict:
+    if not anime_id:
+        raise ValueError("missing anime id")
+
+    api = "https://api.allanime.day/api"
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Referer": "https://allmanga.to"
+    }
+
+    params = {
+        "variables": json.dumps(
+            {"_id": anime_id},
+            separators=(",", ":")
+        ),
+        "extensions": json.dumps({
+            "persistedQuery": {
+                "version": 1,
+                "sha256Hash": "9d7439c90f203e534ca778c4901f9aa2d3ad42c06243ab2c5e6b79612af32028"
+            }
+        })
+    }
+
+    response = requests.get(api, headers=headers, params=params)
+    _debug(debug, f"HTTP status code: {response.status_code}")
+    response.raise_for_status()
+
+    data = response.json()
+
+    try:
+        show = data["data"]["show"]
+    except (KeyError, TypeError):
+        raise AllAnimeSearchError("Anime not found")
+
+    return {
+        "id": show["_id"],
+        "title": show.get("name"),
+        "thumbnail_url": show.get("thumbnail"),
+        "synopsis": show.get("description") or "No synopsis available.",
+        "description": show.get("description") or "No description available.",
+        "episodes": show.get("availableEpisodes", {}).get("sub", 0)
+    }
+
 
 
