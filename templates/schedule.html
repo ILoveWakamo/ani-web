@@ -31,6 +31,7 @@
             <img src="{{ anime.images.webp.image_url }}" alt="{{ anime.title }} cover">
             <p>{{ anime.title }}</p>
             <p>{{ anime.episodes }} episodes</p>
+            <button class="watchlist-btn" data-anime='{{ anime | tojson }}' title="Add to watchlist">☆</button>
         </a>
         {% else %}
         <p>No seasonal anime found.</p>

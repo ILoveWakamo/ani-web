@@ -172,7 +172,3 @@ def get_episode_url(show_id, ep_no, mode):
     all_links.sort(reverse=True)
     debug("All collected links", all_links)
     return all_links
-
-
-print(get_episode_url("7ukoqggR93e4JgX6W", 1, "dub"))
-

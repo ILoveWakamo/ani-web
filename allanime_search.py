@@ -89,6 +89,7 @@ def fetch_season_anime(
             break
 
         for edge in edges:
+            has_dub = edge.get("availableEpisodes", {}).get("dub", 0) > 0
             anime = {
                 "id": edge.get("_id"),
                 "title": edge.get("name"),
@@ -98,7 +99,8 @@ def fetch_season_anime(
                         "image_url": edge.get("thumbnail") or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
                     }
                 },
-                "synopsis": edge.get("description") or "No description found."
+                "synopsis": edge.get("description") or "No description found.",
+                "has_dub": has_dub
             }
             results.append(anime)
         page += 1
@@ -214,19 +216,21 @@ def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[dic
 
     results: List[str] = []
     for edge in edges:
-                anime = {
-                    "id": edge.get("_id", ""),
-                    "title": edge.get("name", ""),
-                    "episodes": edge.get("availableEpisodes", {}).get(mode, 0),
-                    "images": {
-                        "webp": {
-                            "image_url": edge.get("thumbnail") or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
-                        }
-                    },
-                    "synopsis": edge.get("description") or "No description found."
+        has_dub = edge.get("availableEpisodes", {}).get("dub", 0) > 0
+        anime = {
+            "id": edge.get("_id", ""),
+            "title": edge.get("name", ""),
+            "episodes": edge.get("availableEpisodes", {}).get(mode, 0),
+            "images": {
+                "webp": {
+                    "image_url": edge.get("thumbnail") or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
                 }
-                
-                results.append(anime)
+            },
+            "synopsis": edge.get("description") or "No description found.",
+            "has_dub": has_dub
+        }
+        
+        results.append(anime)
 
     _debug(debug, "Search completed successfully")
     
@@ -315,6 +319,7 @@ def fetch_recent_anime(
                     }
                 },
                 "synopsis": edge.get("description") or "No description found."
+
             }
             results.append(anime)
 
@@ -355,13 +360,16 @@ def search_by_id(anime_id: str, debug: bool = False) -> dict:
     except (KeyError, TypeError):
         raise AllAnimeSearchError("Anime not found")
 
+    has_dub = show.get("availableEpisodes", {}).get("dub", 0) > 0
+
     return {
         "id": show["_id"],
         "title": show.get("name"),
         "thumbnail_url": show.get("thumbnail"),
         "synopsis": show.get("description") or "No synopsis available.",
         "description": show.get("description") or "No description available.",
-        "episodes": show.get("availableEpisodes", {}).get("sub", 0)
+        "episodes": show.get("availableEpisodes", {}).get("sub", 0),
+        "has_dub": has_dub
     }
 
 

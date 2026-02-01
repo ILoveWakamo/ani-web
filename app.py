@@ -202,6 +202,11 @@ def description(anime_id):
     except Exception as e:
         return f"Error fetching anime description: {e}", 500
 
+@app.route("/watchlist")
+def watchlist():
+    mode = request.args.get("mode", "sub")
+    return render_template("watchlist.html", mode=mode)
+
 
 
 # ---------------------------

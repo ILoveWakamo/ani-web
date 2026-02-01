@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% extends "base.html" %}
+{% block title %} AniWeb - Search {% endblock %}
+{% block head %} {{ super() }} {% endblock %}
+{% block content %}
+
+<div class="inner">
+  <h1>Search Results</h1>
+  <div class="filters">
+    <button id="sub-btn" class="mode-btn {% if mode == 'sub' %}active{% endif %}" data-mode="sub"
+      data-title="{{ title }}">Sub</button>
+    <button id="dub-btn" class="mode-btn {% if mode == 'dub' %}active{% endif %}" data-mode="dub"
+      data-title="{{ title }}">Dub</button>
+  </div>
+  <div class="anime-grid" id="watchlist-grid">
+  </div>
+  <div>
+    {% endblock %}
+
+</html>
