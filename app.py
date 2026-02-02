@@ -205,7 +205,37 @@ def description(anime_id):
 @app.route("/watchlist")
 def watchlist():
     mode = request.args.get("mode", "sub")
+    print("mode is "+mode)
     return render_template("watchlist.html", mode=mode)
+
+@app.route("/watchlist/render", methods=["GET", "POST"])
+def watchlist_render():
+    mode=request.args.get("mode", "sub")
+    data = request.get_json(silent=True) or {}
+    ids = data.get("watchlist", [])
+
+    ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,17}$")
+
+    if not isinstance(ids, list):
+        ids = []
+
+    ids = [
+        x for x in ids
+        if isinstance(x, str) and ID_RE.fullmatch(x)
+    ][:200]
+    if not ids:
+        return render_template(
+            "partials/watchlist_items.html",
+            anime_list=[]
+        )
+    results = []
+    for anime_id in ids:
+        anime = search_by_id(anime_id)
+        if mode == "dub" and not anime["has_dub"]:
+            continue;
+        results.append(anime)
+    return render_template("partials/watchlist_items.html", anime_list=results, mode=mode)
+
 
 
 

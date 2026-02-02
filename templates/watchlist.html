@@ -7,7 +7,7 @@
 {% block content %}
 
 <div class="inner">
-  <h1>Search Results</h1>
+  <h1>Watchlist</h1>
   <div class="filters">
     <button id="sub-btn" class="mode-btn {% if mode == 'sub' %}active{% endif %}" data-mode="sub"
       data-title="{{ title }}">Sub</button>
@@ -15,8 +15,37 @@
       data-title="{{ title }}">Dub</button>
   </div>
   <div class="anime-grid" id="watchlist-grid">
+    <p>Loading…</p>
   </div>
   <div>
-    {% endblock %}
+
+
+  <script>
+    function loadWatchlist() {
+      // get watchlist IDs from localStorage
+      const watchlist = JSON.parse(localStorage.getItem("aniweb_watchlist")) || [];
+      const container = document.getElementById("watchlist-grid");
+
+      if (watchlist.length === 0) {
+        container.innerHTML = "<p>Your watchlist is empty.</p>";
+        return;
+      }
+
+      // send to Flask partial renderer
+      fetch("{{ url_for('watchlist_render') }}?mode={{ mode }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ watchlist })
+      })
+      .then(res => res.text())
+      .then(html => {
+        container.innerHTML = html;
+      });
+    }
+    
+    // initialize
+    loadWatchlist();
+  </script>
+  {% endblock %}
 
 </html>

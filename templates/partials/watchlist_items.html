@@ -1,0 +1,10 @@
+{% for anime in anime_list %}
+<a class="anime-card" href="{{ url_for('description', anime_id=anime.id) }}?mode={{ mode }}">
+  <img src="{{ anime.thumbnail_url }}" alt="{{ anime.title }} cover">
+  <p>{{ anime.title }}</p>
+  <p>{{ anime.episodes }} episodes</p>
+  <button class="watchlist-btn remove-btn" data-anime='{{ anime.id }}' title="Remove ftom watchlist">☆</button>
+</a>
+{% else %}
+<p>Your watchlist is empty.</p>
+{% endfor %}

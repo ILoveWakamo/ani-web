@@ -201,6 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
    Watchlist functionality
 ======================== */
 document.addEventListener("DOMContentLoaded", () => {
+
     const WATCHLIST_KEY = 'aniweb_watchlist';
 
     // Get the watchlist array from localStorage
@@ -236,6 +237,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll('.watchlist-btn').forEach(btn => {
             const anime = btn.dataset.anime;
             btn.textContent = isInWatchlist(anime) ? '★' : '☆';
+            if (btn.textContent == '☆' && btn.classList[1] === "remove-btn") {
+                btn.parentElement.remove();
+            }
+
         });
     }
 
@@ -250,61 +255,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Initialize stars on page load
     updateWatchlistButtons();
+
+    // Select the element you want to watch
+    const target = document.getElementById('watchlist-grid');
+
+    if (target) {
+        // Create observer
+        const observer = new MutationObserver((mutationsList, observer) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    document.querySelectorAll('.watchlist-btn').forEach(btn => {
+                        btn.addEventListener('click', e => {
+                            e.preventDefault(); // prevent card navigation
+                            const anime = btn.dataset.anime;
+                            toggleWatchlist(anime);
+                        });
+                    });
+                    updateWatchlistButtons();
+                    console.log("mutations deteced")
+                }
+            }
+        });
+        observer.observe(target, {
+            childList: true,       // watch adding/removing children
+        });
+    }
+
+
 });
 
 
-/* ========================
-   Watchlist page
-======================== */
-
-document.addEventListener("DOMContentLoaded", () => {
-    const WATCHLIST_KEY = 'aniweb_watchlist';
-
-    // Get the watchlist array from localStorage
-    function getWatchlist() {
-        const stored = localStorage.getItem(WATCHLIST_KEY);
-        return stored ? JSON.parse(stored) : [];
-    }
-
-    function build_card(data) {
-        const url = new URL(window.location);
-        console.log(url)
-        // Create the card container
-        let card = document.createElement("a");
-        card.href = `/description/${data.id}?mode=${url.searchParams.get("mode")}`;
-        card.classList.add("anime-card");
-
-        // Fill the card with HTML
-        card.innerHTML = `
-            <img src="${data.images.webp.image_url}" alt="${data.title}">
-            <p>${data.title}</p>
-            <p>${data.episodes} episodes</p>
-        `;
-
-        return card;
-    }
-
-    grid = document.getElementById("watchlist-grid");
-    if (grid == null) {
-        return;
-    }
-    const watchlist = getWatchlist();
-    if (watchlist.length == 0) {
-        grid.innerText = "No animes in watchlist";
-        return;
-    }
-
-    const url = new URL(window.location);
-    const mode = url.searchParams.get("mode")
-    watchlist.forEach(watchlistEntry => {
-        // Parse the string into JSON
-        let data = JSON.parse(watchlistEntry.replace(/'/g, '"'));
-        if (mode === "dub" && !data.has_dub)
-            return;
-        grid.appendChild(build_card(data));
-    });
-
-});
 
 
 
