@@ -131,16 +131,52 @@ def search():
 def video_proxy():
     url = request.args.get("url")
     if not url:
-        return "Missing URL", 400
+        abort(400, "Missing URL")
 
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
-        "Referer": "https://allmanga.to"
+        "User-Agent": request.headers.get(
+            "User-Agent",
+            "Mozilla/5.0"
+        ),
+        "Referer": "https://allmanga.to",
     }
 
-    resp = requests.get(url, headers=headers, stream=True)
-    return Response(resp.iter_content(chunk_size=8192), content_type=resp.headers.get("content-type"))
+    if "Range" in request.headers:
+        headers["Range"] = request.headers["Range"]
 
+    resp = requests.get(
+        url,
+        headers=headers,
+        stream=True,
+        allow_redirects=True
+    )
+
+    def generate():
+        try:
+            for chunk in resp.iter_content(chunk_size=8192):
+                if chunk:
+                    yield chunk
+        finally:
+            resp.close()
+
+    excluded_headers = {
+        "content-encoding",
+        "transfer-encoding",
+        "connection",
+    }
+
+    response_headers = {}
+    for k, v in resp.headers.items():
+        lk = k.lower()
+        if lk not in excluded_headers:
+            response_headers[k] = v
+
+    return Response(
+        generate(),
+        status=resp.status_code,
+        headers=response_headers,
+        direct_passthrough=True
+    )
 
 # Player route (episode via query param)
 @app.route("/play/<anime_id>")
