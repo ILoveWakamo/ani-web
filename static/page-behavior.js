@@ -234,6 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Update all watchlist buttons
     function updateWatchlistButtons() {
+        //for schedule and search page
         document.querySelectorAll('.watchlist-btn').forEach(btn => {
             const anime = btn.dataset.anime;
             btn.textContent = isInWatchlist(anime) ? '★' : '☆';
@@ -242,6 +243,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
         });
+
+        //for description page
+        var btn = document.getElementById("description-watchlist-btn")
+        if (btn) {
+            const anime = btn.dataset.anime;
+            btn.textContent = isInWatchlist(anime) ? 'Remove from watchlist' : 'Add to watchlist';
+        }
+
     }
 
     // Attach click event to buttons
@@ -252,6 +261,12 @@ document.addEventListener("DOMContentLoaded", () => {
             toggleWatchlist(anime);
         });
     });
+    var btn = document.getElementById("description-watchlist-btn");
+    btn.addEventListener('click', e => {
+        const anime = btn.dataset.anime;
+        toggleWatchlist(anime);
+    })
+
 
     // Initialize stars on page load
     updateWatchlistButtons();
