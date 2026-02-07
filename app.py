@@ -271,8 +271,8 @@ def watchlist_render():
             if mode == "dub" and not anime["has_dub"]:
                 continue;
             results.append(anime)
-        except AllAnimeSearchError:
-            print(AllAnimeSearchError)
+        except :
+            print("error loading the watchlist for id " + anime_id)
     return render_template("partials/watchlist_items.html", anime_list=results, mode=mode)
 
 
