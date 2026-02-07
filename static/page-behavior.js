@@ -238,6 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll('.watchlist-btn').forEach(btn => {
             const anime = btn.dataset.anime;
             btn.textContent = isInWatchlist(anime) ? '★' : '☆';
+            btn.title = isInWatchlist(anime) ? "Remove from watchlist" : "Add to watchlist"
             if (btn.textContent == '☆' && btn.classList[1] === "remove-btn") {
                 btn.parentElement.remove();
             }
@@ -249,6 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btn) {
             const anime = btn.dataset.anime;
             btn.textContent = isInWatchlist(anime) ? 'Remove from watchlist' : 'Add to watchlist';
+            btn.title = isInWatchlist(anime) ? "Remove from watchlist" : "Add to watchlist"
         }
 
     }
