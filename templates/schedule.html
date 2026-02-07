@@ -17,7 +17,7 @@
         <a class="anime-card" href="{{ url_for('play', anime_id=anime.id, episode=anime.episodes, total=anime.episodes) }}">
             <img src="{{ anime.images.webp.image_url }}" alt="{{ anime.title }} cover">
             <p>{{ anime.title }}</p>
-            <p>{{ anime.episodes }} episodes</p>
+            <p>episode {{ anime.episodes }}</p>
         </a>
         {% else %}
         <p>No recent anime found.</p>
