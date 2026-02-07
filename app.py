@@ -266,10 +266,13 @@ def watchlist_render():
         )
     results = []
     for anime_id in ids:
-        anime = search_by_id(anime_id)
-        if mode == "dub" and not anime["has_dub"]:
-            continue;
-        results.append(anime)
+        try:
+            anime = search_by_id(anime_id)
+            if mode == "dub" and not anime["has_dub"]:
+                continue;
+            results.append(anime)
+        except AllAnimeSearchError:
+            print(AllAnimeSearchError)
     return render_template("partials/watchlist_items.html", anime_list=results, mode=mode)
 
 
