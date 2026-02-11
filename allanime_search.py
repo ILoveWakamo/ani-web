@@ -75,6 +75,7 @@ def fetch_season_anime(
         _debug(debug, f"Fetching page {page} with variables: {variables}")
 
         response = requests.get(api, headers=headers, params=params)
+        _debug(debug, f"{response.text}")
         _debug(debug, f"HTTP status code: {response.status_code}")
         response.raise_for_status()
 
