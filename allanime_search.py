@@ -31,26 +31,50 @@ def fetch_season_anime(
     Returns:
         List[str]: Formatted anime entries (id, name, availableEpisodes, thumbnail)
     """
-
-    agent = "Mozilla/5.0"
     api = "https://api.allanime.day/api"
-    referer = "https://allmanga.to"
 
     headers = {
-        "User-Agent": agent,
-        "Referer": referer,
-        "Accept": "*/*",
-        "Origin": referer
+        "User-Agent": "Mozilla/5.0",
+        "Referer": "https://allanime.to/",
+        "Origin": "https://allanime.to",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
     }
 
-    results: List[str] = []
+    graphql_query = """
+    query GetSeasonalShows(
+        $search: SearchInput
+        $limit: Int
+        $page: Int
+        $translationType: VaildTranslationTypeEnumType
+        $countryOrigin: VaildCountryOriginEnumType
+    ) {
+        shows(
+            search: $search
+            limit: $limit
+            page: $page
+            translationType: $translationType
+            countryOrigin: $countryOrigin
+        ) {
+            edges {
+                _id
+                name
+                description
+                thumbnail
+                availableEpisodes
+            }
+        }
+    }
+    """
+
+    results: List[dict] = []
     page = 1
-    limit = 26  # safe max
+    limit = 26
 
     while True:
         variables = {
             "search": {
-                "season": season.capitalize(),  # "Winter", "Spring", etc.
+                "season": season.capitalize(),
                 "year": year,
                 "allowAdult": False,
                 "allowUnknown": False
@@ -61,52 +85,54 @@ def fetch_season_anime(
             "countryOrigin": "JP"
         }
 
-        # Persisted query required for season/year searches
-        params = {
-            "variables": json.dumps(variables, separators=(",", ":")),
-            "extensions": json.dumps({
-                "persistedQuery": {
-                    "version": 1,
-                    "sha256Hash": "06327bc10dd682e1ee7e07b6db9c16e9ad2fd56c1b769e47513128cd5c9fc77a"
-                }
-            })
+        payload = {
+            "query": graphql_query,
+            "variables": variables
         }
 
-        _debug(debug, f"Fetching page {page} with variables: {variables}")
+        if debug:
+            print(f"Fetching page {page}")
+            print(json.dumps(payload, indent=2))
 
-        response = requests.get(api, headers=headers, params=params)
-        _debug(debug, f"{response.text}")
-        _debug(debug, f"HTTP status code: {response.status_code}")
+        response = requests.post(api, headers=headers, json=payload)
+
+        if debug:
+            print(response.text)
+
         response.raise_for_status()
-
         data = response.json()
-        try:
-            edges = data["data"]["shows"]["edges"]
-        except (KeyError, TypeError):
-            raise AllAnimeSearchError("Unexpected API response structure")
 
-        if not edges:
-            _debug(debug, "No more results, stopping pagination")
+        shows = data.get("data", {}).get("shows")
+        if not shows or not shows.get("edges"):
             break
 
-        for edge in edges:
-            has_dub = edge.get("availableEpisodes", {}).get("dub", 0) > 0
+        for edge in shows["edges"]:
+            available = edge.get("availableEpisodes") or {}
+
+            has_dub = available.get("dub", 0) > 0
+            sub_eps = available.get("sub", 0)
+
             anime = {
                 "id": edge.get("_id"),
                 "title": edge.get("name"),
-                "episodes": edge.get("availableEpisodes", {}).get("sub", 0),
+                "episodes": sub_eps,
                 "images": {
                     "webp": {
-                        "image_url": edge.get("thumbnail") or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
+                        "image_url": edge.get("thumbnail") or
+                        "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
                     }
                 },
                 "synopsis": edge.get("description") or "No description found.",
                 "has_dub": has_dub
             }
+
             results.append(anime)
+
         page += 1
 
-    _debug(debug, f"Total results fetched: {len(results)}")
+    if debug:
+        print(f"Total results fetched: {len(results)}")
+
     return results
 
 
@@ -252,79 +278,115 @@ def fetch_recent_anime(
     Returns:
         List[str]: Formatted anime entries (id, name, availableEpisodes, thumbnail)
     """
-
-    agent = "Mozilla/5.0"
     api = "https://api.allanime.day/api"
-    referer = "https://allmanga.to"
 
     headers = {
-        "User-Agent": agent,
-        "Referer": referer,
-        "Accept": "*/*",
-        "Origin": referer
+        "User-Agent": "Mozilla/5.0",
+        "Referer": "https://allanime.to/",
+        "Origin": "https://allanime.to",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
     }
 
-    results: List[str] = []
-    limit = 26  # safe max
+    graphql_query = """
+    query GetRecentShows(
+        $search: SearchInput
+        $limit: Int
+        $page: Int
+        $translationType: VaildTranslationTypeEnumType
+        $countryOrigin: VaildCountryOriginEnumType
+    ) {
+        shows(
+            search: $search
+            limit: $limit
+            page: $page
+            translationType: $translationType
+            countryOrigin: $countryOrigin
+        ) {
+            edges {
+                _id
+                name
+                description
+                thumbnail
+                availableEpisodes
+                lastEpisodeDate
+            }
+        }
+    }
+    """
 
     variables = {
         "search": {
             "allowAdult": False,
             "allowUnknown": False
         },
-        "limit": limit,
+        "limit": 26,
         "page": 1,
         "translationType": mode,
         "countryOrigin": "JP"
     }
 
-    # Persisted query required for season/year searches
-    params = {
-        "variables": json.dumps(variables, separators=(",", ":")),
-        "extensions": json.dumps({
-            "persistedQuery": {
-                "version": 1,
-                "sha256Hash": "06327bc10dd682e1ee7e07b6db9c16e9ad2fd56c1b769e47513128cd5c9fc77a"
-            }
-        })
+    payload = {
+        "query": graphql_query,
+        "variables": variables
     }
 
-    _debug(debug, f"Fetching recents with variables: {variables}")
+    if debug:
+        print(json.dumps(payload, indent=2))
 
-    response = requests.get(api, headers=headers, params=params)
-    _debug(debug, f"HTTP status code: {response.status_code}")
+    response = requests.post(api, headers=headers, json=payload)
+
+    if debug:
+        print(response.text)
+
     response.raise_for_status()
-
     data = response.json()
-    try:
-        edges = data["data"]["shows"]["edges"]
-    except (KeyError, TypeError):
-        raise AllAnimeSearchError("Unexpected API response structure")
 
-    if not edges:
-        _debug(debug, "No more results, stopping pagination")
+    shows = data.get("data", {}).get("shows")
+    if not shows or not shows.get("edges"):
         return []
 
-    for edge in edges:
-        base_date = edge.get("lastEpisodeDate", {}).get(mode, {})
-        air_date = datetime.date(base_date["year"], base_date["month"]+1, base_date["date"])
-        t_delta = datetime.date.today() - air_date
-        if t_delta.days < 2:
+    results: List[dict] = []
+
+    for edge in shows["edges"]:
+
+        # lastEpisodeDate is now a generic object
+        last_date_obj = (edge.get("lastEpisodeDate") or {}).get(mode)
+
+        if not last_date_obj:
+            continue
+
+        try:
+            air_date = datetime.date(
+                last_date_obj["year"],
+                last_date_obj["month"] + 1,  # still zero-indexed
+                last_date_obj["date"]
+            )
+        except Exception:
+            continue
+
+        if (datetime.date.today() - air_date).days < 2:
+
+            available = edge.get("availableEpisodes") or {}
+
             anime = {
                 "id": edge.get("_id"),
                 "title": edge.get("name"),
-                "episodes": edge.get("availableEpisodes", {}).get("sub", 0),
+                "episodes": available.get("sub", 0),
                 "images": {
                     "webp": {
-                            "image_url": edge.get("thumbnail") or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
+                        "image_url": edge.get("thumbnail")
+                        or "https://www.eclosio.ong/wp-content/uploads/2018/08/default.png"
                     }
                 },
                 "synopsis": edge.get("description") or "No description found."
-
             }
+
             results.append(anime)
 
-    _debug(debug, f"Total results fetched: {len(results)}")
+    if debug:
+        print(f"Total recent results: {len(results)}")
+
     return results
 
 def search_by_id(anime_id: str, debug: bool = False) -> dict:
