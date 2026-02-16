@@ -394,36 +394,51 @@ def search_by_id(anime_id: str, debug: bool = False) -> dict:
         raise ValueError("missing anime id")
 
     api = "https://api.allanime.day/api"
+
     headers = {
         "User-Agent": "Mozilla/5.0",
-        "Referer": "https://allmanga.to"
+        "Referer": "https://allanime.to/",
+        "Origin": "https://allanime.to",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
     }
 
-    params = {
-        "variables": json.dumps(
-            {"_id": anime_id},
-            separators=(",", ":")
-        ),
-        "extensions": json.dumps({
-            "persistedQuery": {
-                "version": 1,
-                "sha256Hash": "9d7439c90f203e534ca778c4901f9aa2d3ad42c06243ab2c5e6b79612af32028"
-            }
-        })
+    graphql_query = """
+    query GetShowById($_id: String!) {
+        show(_id: $_id) {
+            _id
+            name
+            description
+            thumbnail
+            availableEpisodes
+        }
+    }
+    """
+
+    payload = {
+        "query": graphql_query,
+        "variables": {
+            "_id": anime_id
+        }
     }
 
-    response = requests.get(api, headers=headers, params=params)
-    _debug(debug, f"HTTP status code: {response.status_code}")
+    if debug:
+        print(json.dumps(payload, indent=2))
+
+    response = requests.post(api, headers=headers, json=payload)
+
+    if debug:
+        print(response.text)
+
     response.raise_for_status()
-
     data = response.json()
 
-    try:
-        show = data["data"]["show"]
-    except (KeyError, TypeError):
+    show = data.get("data", {}).get("show")
+    if not show:
         raise AllAnimeSearchError("Anime not found")
 
-    has_dub = show.get("availableEpisodes", {}).get("dub", 0) > 0
+    available = show.get("availableEpisodes") or {}
+    has_dub = available.get("dub", 0) > 0
 
     return {
         "id": show["_id"],
@@ -431,7 +446,7 @@ def search_by_id(anime_id: str, debug: bool = False) -> dict:
         "thumbnail_url": show.get("thumbnail"),
         "synopsis": show.get("description") or "No synopsis available.",
         "description": show.get("description") or "No description available.",
-        "episodes": show.get("availableEpisodes", {}).get("sub", 0),
+        "episodes": available.get("sub", 0),
         "has_dub": has_dub
     }
 
