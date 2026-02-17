@@ -96,11 +96,13 @@ document.addEventListener("DOMContentLoaded", () => {
     /* Render controls visible*/
     function showControls() {
         container.querySelector(".controls-bar").style.opacity = "1";
+        container.style.cursor = "pointer";
     }
 
     /* Render controls invisible*/
     function hideControls() {
         container.querySelector(".controls-bar").style.opacity = "0";
+        container.style.cursor = "none";
     }
 
     /* Define timeout to hide controls*/
