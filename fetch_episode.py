@@ -15,7 +15,7 @@ agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Fire
 allanime_refr = "https://allmanga.to"
 allanime_base = "allanime.day"
 allanime_api = f"https://api.{allanime_base}"
-debug_toggle = True
+debug_toggle = False
 
 # ------------------------------
 # HELPER FUNCTIONS
