@@ -218,12 +218,12 @@ def search_anime(title: str, mode: str = "sub", debug: bool = False) -> List[dic
 
     params = {
         "query": search_gql,
-        "variables": json.dumps(variables, separators=(",", ":"))
+        "variables": variables
     }
 
-    _debug(debug, "Sending HTTP GET request")
+    _debug(debug, "Sending HTTP POST request")
 
-    response = requests.get(api, headers=headers, params=params)
+    response = requests.post(api, headers=headers, json=params)
 
     _debug(debug, f"HTTP status code: {response.status_code}")
     _debug(debug, f"Response byte length: {len(response.content)}")

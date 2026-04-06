@@ -61,7 +61,7 @@ def decode_provider(raw_id):
 def episodes_list(show_id):
     gql = 'query ($showId: String!) { show( _id: $showId ) { _id availableEpisodesDetail }}'
     params = {"variables": f'{{"showId":"{show_id}"}}', "query": gql}
-    resp = requests.get(f"{allanime_api}/api", headers={"User-Agent": agent, "Referer": allanime_refr}, params=params).text
+    resp = requests.post(f"{allanime_api}/api", headers={"User-Agent": agent, "Referer": allanime_refr}, json=params).json()
     debug("Raw episode list response (first 500 chars)", resp[:500])
 
     match = re.search(rf'{mode}":\[(.*?)\]', resp)
@@ -148,10 +148,10 @@ def get_episode_url(show_id, ep_no, mode):
     }"""
     variables = {"showId": show_id, "translationType": mode, "episodeString": str(ep_no)}
     
-    resp = requests.get(
+    resp = requests.post(
         f"{allanime_api}/api",
         headers={"User-Agent": agent, "Referer": allanime_refr},
-        params={"variables": json.dumps(variables), "query": gql}
+        json={"variables": json.dumps(variables), "query": gql}
     ).text
     debug("Raw GraphQL episode response (first 500 chars)", resp[:500])
 
